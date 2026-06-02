@@ -68,5 +68,11 @@ def chat():
     
     return jsonify({"response": ai_response})
 
+# Resets the game state back to the start
+@app.route('/api/reset', methods=['POST'])
+def reset_game():
+    state.reset_state()
+    return jsonify({"status": "success"})
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

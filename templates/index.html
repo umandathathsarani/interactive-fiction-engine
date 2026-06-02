@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Fiction Engine</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕰️</text></svg>">
     <style>
         body {
-            background-color: #0d1117;
-            color: #c9d1d9;
+            background-color: #0a0a0c;
+            color: #d1d1d1;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             justify-content: center;
@@ -17,29 +18,39 @@
         #game-container {
             width: 100%;
             max-width: 800px;
-            background: #161b22;
-            padding: 2rem;
-            border-radius: 8px;
-            border: 1px solid #30363d;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: #141417;
+            padding: 2.5rem;
+            border-radius: 6px;
+            border: 1px solid #2a2a35;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        h1 { color: #58a6ff; text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 1rem; }
-        #inventory-panel { color: #3fb950; font-size: 0.9rem; margin-bottom: 2rem; text-align: right; }
-        #story-text { font-size: 1.2rem; line-height: 1.6; margin-bottom: 2rem; }
+        h1 { 
+            color: #d4af37; 
+            text-align: center; 
+            border-bottom: 1px solid #2a2a35; 
+            padding-bottom: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        #inventory-panel { color: #9d81d2; font-size: 0.95rem; margin-bottom: 2rem; text-align: right; }
+        #story-text { font-size: 1.15rem; line-height: 1.7; margin-bottom: 2rem; }
         .choice-btn {
-            display: block; width: 100%; background: #21262d; color: #c9d1d9;
-            border: 1px solid #30363d; padding: 1rem; margin-bottom: 0.5rem;
-            text-align: left; cursor: pointer; border-radius: 6px; font-family: inherit;
-            transition: 0.2s;
+            display: block; width: 100%; background: #1c1c21; color: #d1d1d1;
+            border: 1px solid #2a2a35; padding: 1.2rem; margin-bottom: 0.8rem;
+            text-align: left; cursor: pointer; border-radius: 4px; font-family: inherit;
+            font-size: 1rem; transition: all 0.2s ease;
         }
-        .choice-btn:hover { background: #30363d; border-color: #8b949e; }
-        #chat-section { margin-top: 2rem; border-top: 1px solid #30363d; padding-top: 1rem; }
+        .choice-btn:hover { background: #2a2a35; border-color: #d4af37; color: #ffffff; }
+        .restart-btn { text-align: center; color: #d4af37; font-weight: bold; font-size: 1.1rem; }
+        
+        #chat-section { margin-top: 2rem; border-top: 1px solid #2a2a35; padding-top: 1rem; }
         #chat-input {
-            width: calc(100% - 22px); padding: 10px; background: #0d1117; 
-            color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; font-family: inherit;
+            width: calc(100% - 24px); padding: 12px; background: #0a0a0c; 
+            color: #d1d1d1; border: 1px solid #2a2a35; border-radius: 4px; font-family: inherit;
         }
-        #ai-response { color: #d2a8ff; margin-top: 1rem; font-style: italic; }
-        #error-msg { color: #f85149; margin-top: 1rem; font-weight: bold; }
+        #chat-input:focus { outline: none; border-color: #d4af37; }
+        #ai-response { color: #62a0ea; margin-top: 1rem; font-style: italic; }
+        #error-msg { color: #e06c75; margin-top: 1rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -53,8 +64,8 @@
     <div id="error-msg"></div>
 
     <div id="chat-section">
-        <p>Talk to the Narrator:</p>
-        <input type="text" id="chat-input" placeholder="Type a question and press Enter..." autocomplete="off">
+        <p style="color: #6c6c75; font-size: 0.9rem;">Talk to the Narrator:</p>
+        <input type="text" id="chat-input" placeholder="Ask a question and press Enter..." autocomplete="off">
         <div id="ai-response"></div>
     </div>
 </div>
@@ -73,14 +84,19 @@
         choicesDiv.innerHTML = '';
         
         if (data.choices.length === 0) {
-            choicesDiv.innerHTML = '<p style="text-align: center; color: #f85149;">--- THE END ---</p>';
-            document.getElementById('chat-section').style.display = 'none';
+            // Reached an ending: Inject Game Over UI & Play Again Button
+            choicesDiv.innerHTML = `
+                <p style="text-align: center; color: #e06c75; font-size: 1.2rem; margin: 2rem 0; letter-spacing: 2px;">--- THE END ---</p>
+                <button class="choice-btn restart-btn" onclick="restartGame()">Play Again</button>
+            `;
+            document.getElementById('chat-section').style.display = 'none'; // Hide chat at the end
         } else {
+            document.getElementById('chat-section').style.display = 'block'; // Show chat during gameplay
             data.choices.forEach((choice, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'choice-btn';
                 let btnText = `${index + 1}. ${choice.choice_text}`;
-                if (choice.required_item) btnText += ` [Requires: ${choice.required_item}]`;
+                if (choice.required_item) btnText += ` 🔒 [Requires: ${choice.required_item}]`;
                 btn.innerText = btnText;
                 btn.onclick = () => makeChoice(index);
                 choicesDiv.appendChild(btn);
@@ -101,6 +117,12 @@
         } else if (data.status === 'success') {
             loadState();
         }
+    }
+
+    async function restartGame() {
+        await fetch('/api/reset', { method: 'POST' });
+        document.getElementById('chat-input').value = '';
+        loadState();
     }
 
     document.getElementById('chat-input').addEventListener('keypress', async function (e) {

@@ -1,5 +1,4 @@
-```text
-   __pycache__/
-   *.pyc
-   .env
-   .vscode/
+__pycache__/
+*.pyc
+.env
+.vscode/

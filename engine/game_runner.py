@@ -16,6 +16,7 @@ def play_game():
         print(e)
         return
 
+    while state.current_node_id:
         raw_node = db_client.get_node_by_id(state.current_node_id)
         if not raw_node:
             print(f"\nError: Story node '{state.current_node_id}' not found in database.")

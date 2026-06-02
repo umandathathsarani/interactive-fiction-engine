@@ -45,6 +45,31 @@
   "box_opened": {
     "node_id": "box_opened",
     "text": "You lift the lid. Inside rests a silver key wrapped in a note that reads: 'You passed the first test. Use this on the trapdoor beneath the rug.'",
+    "choices": [
+      {
+        "choice_text": "Examine the heavy rug on the floor.",
+        "next_node": "trapdoor_room"
+      }
+    ]
+  },
+  "trapdoor_room": {
+    "node_id": "trapdoor_room",
+    "text": "You pull back the dusty rug to reveal a heavy wooden trapdoor with a silver-rimmed keyhole.",
+    "choices": [
+      {
+        "choice_text": "Unlock and open the trapdoor.",
+        "next_node": "secret_basement",
+        "required_item": "Silver Key"
+      },
+      {
+        "choice_text": "Leave it and head out to the back alleyway instead.",
+        "next_node": "alleyway"
+      }
+    ]
+  },
+  "secret_basement": {
+    "node_id": "secret_basement",
+    "text": "The trapdoor creaks open, revealing a stone ladder leading down into a glowing secret archives room. You have uncovered the truth of the clocktower!",
     "choices": []
   },
   "shadows": {

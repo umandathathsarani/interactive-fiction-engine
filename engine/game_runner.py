@@ -48,6 +48,10 @@ def play_game():
             if 0 <= choice_idx < len(current_node.choices):
                 chosen_choice = current_node.choices[choice_idx]
                 
+                if "required_item" in chosen_choice and not state.has_item(chosen_choice["required_item"]):
+                    print(f"\n🔒 Locked: You need the '{chosen_choice['required_item']}' to choose this option.")
+                    continue
+                
                 if "add_item" in chosen_choice:
                     state.add_item(chosen_choice["add_item"])
                     print(f"\n[!] Item acquired: {chosen_choice['add_item']}")

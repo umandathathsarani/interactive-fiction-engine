@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Fiction Engine</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            margin: 0;
+        }
+        #game-container {
+            width: 100%;
+            max-width: 800px;
+            background: #161b22;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h1 { color: #58a6ff; text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 1rem; }
+        #inventory-panel { color: #3fb950; font-size: 0.9rem; margin-bottom: 2rem; text-align: right; }
+        #story-text { font-size: 1.2rem; line-height: 1.6; margin-bottom: 2rem; }
+        .choice-btn {
+            display: block; width: 100%; background: #21262d; color: #c9d1d9;
+            border: 1px solid #30363d; padding: 1rem; margin-bottom: 0.5rem;
+            text-align: left; cursor: pointer; border-radius: 6px; font-family: inherit;
+            transition: 0.2s;
+        }
+        .choice-btn:hover { background: #30363d; border-color: #8b949e; }
+        #chat-section { margin-top: 2rem; border-top: 1px solid #30363d; padding-top: 1rem; }
+        #chat-input {
+            width: calc(100% - 22px); padding: 10px; background: #0d1117; 
+            color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; font-family: inherit;
+        }
+        #ai-response { color: #d2a8ff; margin-top: 1rem; font-style: italic; }
+        #error-msg { color: #f85149; margin-top: 1rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h1>Midnight Clocktower</h1>
+    <div id="inventory-panel">Inventory: <span id="inventory-list">Empty</span></div>
+    
+    <div id="story-text">Loading...</div>
+    <div id="choices-container"></div>
+    <div id="error-msg"></div>
+
+    <div id="chat-section">
+        <p>Talk to the Narrator:</p>
+        <input type="text" id="chat-input" placeholder="Type a question and press Enter..." autocomplete="off">
+        <div id="ai-response"></div>
+    </div>
+</div>
+
+<script>
+    async function loadState() {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+        
+        document.getElementById('story-text').innerText = data.text;
+        document.getElementById('inventory-list').innerText = data.inventory.length > 0 ? data.inventory.join(', ') : 'Empty';
+        document.getElementById('error-msg').innerText = '';
+        document.getElementById('ai-response').innerText = '';
+        
+        const choicesDiv = document.getElementById('choices-container');
+        choicesDiv.innerHTML = '';
+        
+        if (data.choices.length === 0) {
+            choicesDiv.innerHTML = '<p style="text-align: center; color: #f85149;">--- THE END ---</p>';
+            document.getElementById('chat-section').style.display = 'none';
+        } else {
+            data.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                let btnText = `${index + 1}. ${choice.choice_text}`;
+                if (choice.required_item) btnText += ` [Requires: ${choice.required_item}]`;
+                btn.innerText = btnText;
+                btn.onclick = () => makeChoice(index);
+                choicesDiv.appendChild(btn);
+            });
+        }
+    }
+
+    async function makeChoice(index) {
+        const res = await fetch('/api/choice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ choice_idx: index })
+        });
+        const data = await res.json();
+        
+        if (data.status === 'locked') {
+            document.getElementById('error-msg').innerText = "🔒 " + data.message;
+        } else if (data.status === 'success') {
+            loadState();
+        }
+    }
+
+    document.getElementById('chat-input').addEventListener('keypress', async function (e) {
+        if (e.key === 'Enter' && this.value.trim() !== '') {
+            const userInput = this.value;
+            this.value = '';
+            document.getElementById('ai-response').innerText = "[Analyzing your words...]";
+            
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: userInput })
+            });
+            const data = await res.json();
+            document.getElementById('ai-response').innerText = "🤖 Narrator: " + data.response;
+        }
+    });
+
+    // Start game
+    loadState();
+</script>
+</body>
+</html>

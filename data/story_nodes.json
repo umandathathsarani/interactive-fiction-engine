@@ -1,0 +1,44 @@
+{
+  "start": {
+    "node_id": "start",
+    "text": "The invitation slipped under your door simply read: 'Midnight. The old clocktower. Come alone.' You stand shivering in the rain, the rusted iron door looming before you.",
+    "choices": [
+      {
+        "choice_text": "Push the heavy iron door open.",
+        "next_node": "inside_tower"
+      },
+      {
+        "choice_text": "Walk around the back to look for a window.",
+        "next_node": "alleyway"
+      }
+    ]
+  },
+  "inside_tower": {
+    "node_id": "inside_tower",
+    "text": "The door creaks shut behind you, plunging you into darkness. A single candle flickers on a dusty table in the center of the room, illuminating a small wooden box.",
+    "choices": [
+      {
+        "choice_text": "Open the wooden box.",
+        "next_node": "box_opened"
+      },
+      {
+        "choice_text": "Leave the box and search the shadows along the wall.",
+        "next_node": "shadows"
+      }
+    ]
+  },
+  "alleyway": {
+    "node_id": "alleyway",
+    "text": "The alley is pitch black. You trip over something metallic that clatters loudly against the cobblestones. Suddenly, a flashlight beam hits your face.",
+    "choices": [
+      {
+        "choice_text": "Run back to the main street.",
+        "next_node": "game_over_run"
+      },
+      {
+        "choice_text": "Shield your eyes and demand to know who is there.",
+        "next_node": "confrontation"
+      }
+    ]
+  }
+}

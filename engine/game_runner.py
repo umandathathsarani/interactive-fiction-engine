@@ -5,16 +5,17 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.node import StoryNode
 from integrations.db_client import DatabaseClient
 from engine.state_manager import StateManager
+from integrations.ai_client import AIClient
 
 def play_game():
     try:
         db_client = DatabaseClient()
         state = StateManager()
+        ai_client = AIClient()
     except ValueError as e:
         print(e)
         return
 
-    while state.current_node_id:
         raw_node = db_client.get_node_by_id(state.current_node_id)
         if not raw_node:
             print(f"\nError: Story node '{state.current_node_id}' not found in database.")
@@ -32,12 +33,13 @@ def play_game():
             print("\n--- THE END ---")
             break
 
-        user_input = input("\nEnter your choice (or 'i' for inventory): ").strip().lower()
+        user_input = input("\nEnter choice, 'i' for inventory, or speak to the narrator: ").strip()
         
-        if user_input == 'i':
-            print("\n")
-            print(f"Inventory: {', '.join(state.inventory) if state.inventory else 'Empty'}")
-            print("\n")
+        if not user_input:
+            continue
+
+        if user_input.lower() == 'i':
+            print(f"\nInventory: {', '.join(state.inventory) if state.inventory else 'Empty'}")
             continue
 
         try:
@@ -53,7 +55,12 @@ def play_game():
             else:
                 print("\nInvalid choice. Please pick a valid number.")
         except ValueError:
-            print("\nInvalid input. Please enter a number or 'i'.")
+            print("\n[Analyzing your words...]")
+            ai_response = ai_client.generate_npc_response(
+                context=current_node.text, 
+                player_input=user_input
+            )
+            print(f"\n🤖 Narrator: {ai_response}")
 
 if __name__ == "__main__":
     play_game()

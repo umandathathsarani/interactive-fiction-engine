@@ -40,5 +40,25 @@
         "next_node": "confrontation"
       }
     ]
+  },
+  "box_opened": {
+    "node_id": "box_opened",
+    "text": "You lift the lid. Inside rests a silver key wrapped in a note that reads: 'You passed the first test. Use this on the trapdoor beneath the rug.'",
+    "choices": []
+  },
+  "shadows": {
+    "node_id": "shadows",
+    "text": "As you feel along the damp stone wall, your hand presses a hidden brick. A mechanism grinds to life, and a hidden door swings open into a brightly lit study.",
+    "choices": []
+  },
+  "game_over_run": {
+    "node_id": "game_over_run",
+    "text": "You panic and bolt back out to the street. You look back, but the silhouette tracking you has disappeared into the rain. You missed your chance to find the truth.",
+    "choices": []
+  },
+  "confrontation": {
+    "node_id": "confrontation",
+    "text": "The flashlight lowers. A figure steps forward, holding a matching invitation. 'Good,' a familiar voice says. 'I was hoping you would show up.'",
+    "choices": []
   }
 }

@@ -1,38 +1,31 @@
-import json
 import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.node import StoryNode
-
-def load_story_data(filepath: str) -> dict:
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    full_path = os.path.join(base_dir, filepath)
-    
-    try:
-        with open(full_path, 'r') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        print(f"Error: Could not find story file at {full_path}")
-        return {}
+from integrations.db_client import DatabaseClient
 
 def play_game():
-    raw_data = load_story_data("data/story_nodes.json")
-    if not raw_data:
+    try:
+        db_client = DatabaseClient()
+    except ValueError as e:
+        print(e)
         return
-
-    story_nodes = {}
-    for key, value in raw_data.items():
-        story_nodes[key] = StoryNode(
-            node_id=value["node_id"],
-            text=value["text"],
-            choices=value.get("choices", [])
-        )
 
     current_node_id = "start"
 
-    while current_node_id in story_nodes:
-        current_node = story_nodes[current_node_id]
+    while current_node_id:
+        raw_node = db_client.get_node_by_id(current_node_id)
+        if not raw_node:
+            print(f"\nError: Story node '{current_node_id}' not found in database.")
+            break
+
+        current_node = StoryNode(
+            node_id=raw_node["node_id"],
+            text=raw_node["text"],
+            choices=raw_node.get("choices", [])
+        )
+        
         current_node.display()
 
         if not current_node.choices:

@@ -19,7 +19,8 @@
     "choices": [
       {
         "choice_text": "Open the wooden box.",
-        "next_node": "box_opened"
+        "next_node": "box_opened",
+        "add_item": "Silver Key"
       },
       {
         "choice_text": "Leave the box and search the shadows along the wall.",
